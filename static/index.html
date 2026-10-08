@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoCompare - Find & Compare Your Perfect Ride</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Custom Colors and Fonts -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Oswald', 'sans-serif'],
+                    },
+                    colors: {
+                        accent: {
+                            500: '#ff4d00', // Sporty orange/red
+                            600: '#cc3d00',
+                        },
+                        dark: {
+                            900: '#0f0f11', // Deep charcoal
+                            800: '#1a1a1d', // Slightly lighter card bg
+                            700: '#2d2d31', // Borders/hover
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Scrollbars, Range Inputs, and Specific Effects -->
+    <style>
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(26, 26, 29, 0.7);
+        }
+
+        html:not(.dark) {
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f0f11;
+        }
+        html:not(.dark) ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d2d31;
+            border-radius: 4px;
+        }
+        html:not(.dark) ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff4d00;
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ff4d00;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px #ff4d00;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #2d2d31;
+            border-radius: 2px;
+        }
+        html:not(.dark) input[type=range]::-webkit-slider-runnable-track {
+            background: #e5e7eb;
+        }
+
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ff4d00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Spec highlight animation */
+        .better-spec {
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { color: #22c55e; text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            50% { color: #4ade80; text-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+            100% { color: #22c55e; text-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-dark-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="scrollToTop()">
+                    <i class="fa-solid fa-motorcycle text-accent-500 text-3xl"></i>
+                    <span class="font-heading text-2xl font-bold tracking-wider">MOTO<span class="text-accent-500">COMPARE</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" onclick="scrollToSection('hero')" class="hover:text-accent-500 transition-colors px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                    <a href="#" onclick="scrollToSection('explore')" class="hover:text-accent-500 transition-colors px-3 py-2 rounded-md text-sm font-medium">Bikes</a>
+                    <a href="#" onclick="openComparisonModalFromNav()" class="hover:text-accent-500 transition-colors px-3 py-2 rounded-md text-sm font-medium relative">
+                        Compare
+                        <span id="nav-compare-badge" class="absolute -top-1 -right-2 bg-accent-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                    </a>
+                    <a href="/docs" target="_blank" class="hover:text-accent-500 transition-colors px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1.5">
+                        <i class="fa-solid fa-code text-xs"></i> API Docs
+                    </a>
+
+                    <!-- Backend Status Indicator -->
+                    <div id="backend-status-pill" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="backend-status-text">Backend Connected</span>
+                    </div>
+
+                    <!-- Add Bike Button -->
+                    <button onclick="openAddBikeModal()" class="px-3.5 py-1.5 text-xs font-semibold bg-accent-500 hover:bg-accent-600 text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Add Bike
+                    </button>
+
+                    <button id="theme-toggle" class="text-gray-400 hover:text-accent-500 transition-colors p-2 rounded-full focus:outline-none">
+                        <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-4">
+                    <button onclick="openAddBikeModal()" class="px-2.5 py-1 text-xs font-semibold bg-accent-500 text-white rounded-lg">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button id="mobile-theme-toggle" class="text-gray-400 hover:text-accent-500 transition-colors p-2 rounded-full focus:outline-none">
+                        <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-lg"></i>
+                    </button>
+                    <button type="button" id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-dark-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div class="md:hidden hidden bg-white dark:bg-dark-900 border-b border-gray-200 dark:border-dark-700" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" onclick="scrollToSection('hero'); toggleMobileMenu()" class="hover:text-accent-500 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#" onclick="scrollToSection('explore'); toggleMobileMenu()" class="hover:text-accent-500 block px-3 py-2 rounded-md text-base font-medium">Bikes</a>
+                <a href="#" onclick="openComparisonModalFromNav(); toggleMobileMenu()" class="hover:text-accent-500 block px-3 py-2 rounded-md text-base font-medium">Compare</a>
+                <a href="/docs" target="_blank" class="hover:text-accent-500 block px-3 py-2 rounded-md text-base font-medium">Swagger API (/docs)</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div id="hero" class="relative pt-24 pb-16 md:pt-36 md:pb-24 overflow-hidden">
+        <!-- Abstract Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-accent-500/20 rounded-full blur-[120px] dark:bg-accent-500/10"></div>
+            <div class="absolute bottom-0 right-0 w-3/4 h-3/4 bg-blue-500/10 rounded-full blur-[150px] dark:bg-blue-600/10"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-accent-500/10 text-accent-500 border border-accent-500/20 mb-4 animate-slide-up">
+                <i class="fa-solid fa-bolt"></i> Powered by FastAPI + SQLite REST Backend
+            </div>
+            <h1 class="text-5xl md:text-7xl font-heading font-bold tracking-tight mb-4 animate-slide-up">
+                FIND YOUR <span class="text-gradient">PERFECT RIDE</span>
+            </h1>
+            <p class="mt-4 max-w-2xl text-lg md:text-xl text-gray-600 dark:text-gray-400 mx-auto animate-slide-up" style="animation-delay: 0.1s;">
+                Compare top bikes with server-backed real-time metrics, dynamic filtering, and detailed specification breakdowns.
+            </p>
+
+            <!-- Search Bar in Hero -->
+            <div class="mt-10 max-w-xl mx-auto animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="relative flex items-center w-full h-14 rounded-full focus-within:shadow-lg bg-white dark:bg-dark-800 border border-gray-300 dark:border-dark-700 overflow-hidden transition-shadow">
+                    <div class="grid place-items-center h-full w-12 text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input
+                        class="peer h-full w-full outline-none text-sm text-gray-700 dark:text-gray-200 bg-transparent pr-4"
+                        type="text"
+                        id="hero-search"
+                        placeholder="Search for a bike (e.g., Duke, Pulsar, Classic)..."
+                    />
+                    <div id="search-spinner" class="hidden pr-4 text-accent-500">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="mt-10 flex flex-wrap justify-center gap-4 animate-slide-up" style="animation-delay: 0.3s;">
+                <button onclick="scrollToSection('explore')" class="px-8 py-3 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 transition-all shadow-[0_0_20px_rgba(255,77,0,0.3)] hover:shadow-[0_0_30px_rgba(255,77,0,0.5)] transform hover:-translate-y-1">
+                    Explore Bikes
+                </button>
+                <button onclick="openComparisonModalFromNav()" class="px-8 py-3 rounded-full bg-transparent border-2 border-gray-900 dark:border-white text-gray-900 dark:text-white font-semibold hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-dark-900 transition-all transform hover:-translate-y-1">
+                    Compare Now
+                </button>
+                <a href="/docs" target="_blank" class="px-6 py-3 rounded-full bg-dark-800 border border-dark-700 text-gray-200 font-semibold hover:border-accent-500 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-accent-500"></i> Interactive Docs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content: Explore Section -->
+    <div id="explore" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Toolbar -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-3xl font-heading font-bold">Featured <span class="text-accent-500">Motorcycles</span></h2>
+                <p id="results-count" class="text-xs text-gray-500 mt-1">Loading database...</p>
+            </div>
+            
+            <div class="flex w-full md:w-auto items-center gap-4">
+                <button id="mobile-filter-btn" class="md:hidden flex-1 glass px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Filters
+                </button>
+                
+                <div class="relative flex-1 md:flex-none">
+                    <select id="sort-select" class="w-full glass appearance-none px-4 py-2 pr-8 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 text-gray-700 dark:text-gray-200 cursor-pointer">
+                        <option value="default" class="bg-white dark:bg-dark-800">Sort By: Featured</option>
+                        <option value="price-low" class="bg-white dark:bg-dark-800">Price: Low to High</option>
+                        <option value="price-high" class="bg-white dark:bg-dark-800">Price: High to Low</option>
+                        <option value="rating" class="bg-white dark:bg-dark-800">Highest Rated</option>
+                        <option value="power" class="bg-white dark:bg-dark-800">Most Powerful</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8 relative">
+            
+            <!-- Sidebar Filters -->
+            <div id="filter-sidebar" class="w-full md:w-64 flex-shrink-0 transition-all duration-300 md:block hidden">
+                <div class="glass p-5 rounded-xl sticky top-24">
+                    <div class="flex justify-between items-center mb-4 md:hidden">
+                        <h3 class="text-lg font-bold font-heading">Filters</h3>
+                        <button onclick="toggleMobileFilter()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Brand Filter -->
+                        <div>
+                            <h4 class="text-sm font-semibold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</h4>
+                            <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="brand-filters">
+                                <span class="text-xs text-gray-400">Loading brands...</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div>
+                            <h4 class="text-sm font-semibold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">Max Price</h4>
+                            <input type="range" id="price-range" min="100000" max="600000" step="10000" value="600000">
+                            <div class="flex justify-between text-xs mt-2 text-gray-500">
+                                <span>₹1.00L</span>
+                                <span id="price-value" class="font-bold text-accent-500">₹6.00 Lakh</span>
+                            </div>
+                        </div>
+
+                        <!-- Bike Type Filter -->
+                        <div>
+                            <h4 class="text-sm font-semibold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">Bike Type</h4>
+                            <div class="space-y-2" id="type-filters">
+                                <span class="text-xs text-gray-400">Loading categories...</span>
+                            </div>
+                        </div>
+
+                        <!-- Engine CC Filter (Min) -->
+                        <div>
+                            <h4 class="text-sm font-semibold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">Min Engine Capacity</h4>
+                            <select id="engine-filter" class="w-full bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-accent-500">
+                                <option value="0">Any CC</option>
+                                <option value="150">150cc & above</option>
+                                <option value="250">250cc & above</option>
+                                <option value="350">350cc & above</option>
+                            </select>
+                        </div>
+
+                        <button onclick="resetFilters()" class="w-full py-2 border border-gray-300 dark:border-dark-600 hover:border-accent-500 text-xs rounded-lg font-medium transition-colors">
+                            Reset All Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bike Grid -->
+            <div class="flex-1">
+                <div id="loading-spinner" class="py-24 text-center">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-accent-500 mb-3"></i>
+                    <p class="text-sm text-gray-400">Fetching bikes from SQLite database...</p>
+                </div>
+
+                <div id="no-results" class="hidden text-center py-20 glass rounded-xl">
+                    <i class="fa-solid fa-ghost text-6xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-bold">No bikes found</h3>
+                    <p class="text-gray-500 text-sm mt-1">Try adjusting your filters, search term, or add a new bike.</p>
+                    <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-accent-500 text-white rounded-lg text-sm hover:bg-accent-600 transition-colors">Reset Filters</button>
+                </div>
+                
+                <div id="bike-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Bike Cards Generated via API -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Compare Bar -->
+    <div id="floating-compare" class="fixed bottom-0 left-0 w-full bg-dark-900 border-t border-dark-700 p-4 transform translate-y-full transition-transform duration-300 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 flex-1 w-full overflow-x-auto pb-2 sm:pb-0" id="compare-slots">
+                <!-- Slots populated by JS -->
+            </div>
+            <div class="flex gap-3 w-full sm:w-auto shrink-0">
+                <button onclick="clearCompare()" class="px-4 py-2 rounded-lg bg-dark-700 text-white hover:bg-dark-600 transition-colors text-sm font-medium flex-1 sm:flex-none">
+                    Clear
+                </button>
+                <button onclick="openComparisonModal()" id="btn-compare-now" class="px-6 py-2 rounded-lg bg-accent-500 text-white hover:bg-accent-600 transition-colors font-semibold shadow-lg shadow-accent-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none">
+                    Compare Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bike Details Modal -->
+    <div id="details-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-dark-800 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden relative transform scale-95 transition-transform duration-300 my-8" id="details-modal-content">
+            <button onclick="closeDetailsModal()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-accent-500 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-md">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div id="details-modal-body">
+                <!-- Injected via API -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Comparison Modal -->
+    <div id="compare-modal" class="fixed inset-0 z-[100] hidden flex flex-col bg-white dark:bg-dark-900 overflow-hidden opacity-0 transition-opacity duration-300">
+        <!-- Header -->
+        <div class="glass border-b border-gray-200 dark:border-dark-700 p-4 shrink-0 flex items-center justify-between sticky top-0 z-20">
+            <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-heading font-bold text-gray-900 dark:text-white">Head-to-Head <span class="text-accent-500">Comparison</span></h2>
+                <span class="text-xs px-2 py-0.5 rounded bg-accent-500/10 text-accent-500 border border-accent-500/20">FastAPI Engine</span>
+            </div>
+            <button onclick="closeCompareModal()" class="w-10 h-10 bg-gray-200 dark:bg-dark-700 hover:bg-accent-500 hover:text-white rounded-full flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Table Container -->
+        <div class="flex-1 overflow-auto p-4 md:p-8">
+            <div class="max-w-6xl mx-auto w-full min-w-[600px]" id="compare-table-container">
+                <!-- Table injected dynamically from /api/compare -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Bike Modal (CRUD) -->
+    <div id="add-bike-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-dark-800 w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8 relative transform scale-95 transition-transform duration-300 my-8">
+            <button onclick="closeAddBikeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-2xl font-heading font-bold mb-1">Add New <span class="text-accent-500">Motorcycle</span></h3>
+            <p class="text-xs text-gray-500 mb-6">Persists directly to the SQLite backend database via POST /api/bikes</p>
+
+            <form id="add-bike-form" onsubmit="handleCreateBike(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">ID (Slug, e.g. cb300r)</label>
+                        <input type="text" id="new-id" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2.5 text-sm" placeholder="e.g. speed400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Brand</label>
+                        <input type="text" id="new-brand" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2.5 text-sm" placeholder="e.g. Triumph">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Model Name</label>
+                        <input type="text" id="new-model" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2.5 text-sm" placeholder="e.g. Speed 400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Price (INR)</label>
+                        <input type="number" id="new-price" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2.5 text-sm" placeholder="e.g. 233000">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Engine (cc)</label>
+                        <input type="number" step="0.1" id="new-engine" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="398">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Power (bhp)</label>
+                        <input type="number" step="0.1" id="new-power" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="40">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Mileage (kmpl)</label>
+                        <input type="number" step="0.1" id="new-mileage" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="30">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Top Speed</label>
+                        <input type="number" id="new-topspeed" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="160">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Torque (Nm)</label>
+                        <input type="number" step="0.1" id="new-torque" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="37.5">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Weight (kg)</label>
+                        <input type="number" id="new-weight" required class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm" placeholder="176">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-gray-400">Category Type</label>
+                        <select id="new-type" class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2 text-sm">
+                            <option value="Naked">Naked</option>
+                            <option value="Cruiser">Cruiser</option>
+                            <option value="Sport">Sport</option>
+                            <option value="Adventure">Adventure</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-gray-400">Image URL</label>
+                    <input type="url" id="new-image" class="w-full bg-gray-50 dark:bg-dark-700 border border-dark-600 rounded-lg p-2.5 text-sm" placeholder="https://images.unsplash.com/...">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-dark-700">
+                    <button type="button" onclick="closeAddBikeModal()" class="px-5 py-2.5 rounded-lg border border-dark-600 text-sm">Cancel</button>
+                    <button type="submit" id="btn-submit-bike" class="px-6 py-2.5 rounded-lg bg-accent-500 hover:bg-accent-600 text-white font-semibold text-sm shadow-md">
+                        Save to Database
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-24 right-4 z-[110] flex flex-col gap-2"></div>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-gray-200 dark:border-dark-700 mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-motorcycle text-accent-500 text-2xl"></i>
+                <span class="font-heading text-xl font-bold">MOTO<span class="text-accent-500">COMPARE</span></span>
+            </div>
+            <p class="text-gray-500 text-sm">© 2026 MotoCompare • Powered by FastAPI & SQLite Backend</p>
+            <div class="flex gap-4">
+                <a href="/docs" target="_blank" class="text-gray-400 hover:text-accent-500 text-sm transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-book-open"></i> API Docs
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // API Base configuration
+        const API_BASE = window.location.origin.includes('http') ? '' : 'http://127.0.0.1:8000';
+
+        // State Management
+        let state = {
+            bikes: [],
+            searchQuery: '',
+            filters: {
+                brands: [],
+                types: [],
+                maxPrice: 600000,
+                minEngine: 0
+            },
+            sortBy: 'default',
+            compareList: [],
+            theme: localStorage.getItem('theme') || 'dark',
+            debounceTimer: null
+        };
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            attachEventListeners();
+            loadFilterOptions();
+            fetchBikes();
+        });
+
+        function initTheme() {
+            if (state.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function toggleTheme() {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', state.theme);
+            initTheme();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const icon = type === 'success' 
+                ? '<i class="fa-solid fa-circle-check text-green-500"></i>' 
+                : '<i class="fa-solid fa-circle-exclamation text-accent-500"></i>';
+            toast.className = `glass px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-x-full transition-transform duration-300 animate-fade-in`;
+            toast.innerHTML = `${icon} <span class="font-medium text-sm">${message}</span>`;
+            
+            const container = document.getElementById('toast-container');
+            container.appendChild(toast);
+            
+            void toast.offsetWidth;
+            toast.classList.remove('translate-x-full');
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function formatPrice(price) {
+            return `₹${(price / 100000).toFixed(2)} Lakh`;
+        }
+
+        // Fetch filter metadata (brands, categories, price bounds)
+        async function loadFilterOptions() {
+            try {
+                const res = await fetch(`${API_BASE}/api/filters`);
+                if (!res.ok) throw new Error('Filter options error');
+                const data = await res.json();
+
+                // Populate brands
+                const brandContainer = document.getElementById('brand-filters');
+                brandContainer.innerHTML = data.brands.map(brand => `
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" value="${brand}" class="brand-filter w-4 h-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500 bg-transparent dark:border-dark-600 transition-colors cursor-pointer">
+                        <span class="text-sm group-hover:text-accent-500 transition-colors">${brand}</span>
+                    </label>
+                `).join('');
+
+                // Populate types
+                const typeContainer = document.getElementById('type-filters');
+                typeContainer.innerHTML = data.types.map(type => `
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" value="${type}" class="type-filter w-4 h-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500 bg-transparent dark:border-dark-600 transition-colors cursor-pointer">
+                        <span class="text-sm group-hover:text-accent-500 transition-colors">${type}</span>
+                    </label>
+                `).join('');
+
+                // Re-bind change listeners
+                document.querySelectorAll('.brand-filter').forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        if (e.target.checked) state.filters.brands.push(e.target.value);
+                        else state.filters.brands = state.filters.brands.filter(b => b !== e.target.value);
+                        fetchBikes();
+                    });
+                });
+
+                document.querySelectorAll('.type-filter').forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        if (e.target.checked) state.filters.types.push(e.target.value);
+                        else state.filters.types = state.filters.types.filter(t => t !== e.target.value);
+                        fetchBikes();
+                    });
+                });
+            } catch (err) {
+                console.error('Failed to load filter options:', err);
+            }
+        }
+
+        // Fetch bikes with current filter query parameters
+        async function fetchBikes() {
+            const spinner = document.getElementById('loading-spinner');
+            const searchSpinner = document.getElementById('search-spinner');
+            const countLabel = document.getElementById('results-count');
+            
+            if (spinner) spinner.classList.remove('hidden');
+            if (searchSpinner) searchSpinner.classList.remove('hidden');
+
+            const params = new URLSearchParams();
+            if (state.searchQuery) params.append('search', state.searchQuery);
+            state.filters.brands.forEach(b => params.append('brand', b));
+            state.filters.types.forEach(t => params.append('type', t));
+            if (state.filters.maxPrice) params.append('max_price', state.filters.maxPrice);
+            if (state.filters.minEngine) params.append('min_engine', state.filters.minEngine);
+            if (state.sortBy) params.append('sort_by', state.sortBy);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/bikes?${params.toString()}`);
+                if (!res.ok) throw new Error('API fetch failed');
+                const data = await res.json();
+                state.bikes = data;
+                renderBikes(data);
+                if (countLabel) countLabel.textContent = `Showing ${data.length} motorcycle${data.length === 1 ? '' : 's'}`;
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showToast('Backend connection error. Please ensure FastAPI server is running.', 'error');
+            } finally {
+                if (spinner) spinner.classList.add('hidden');
+                if (searchSpinner) searchSpinner.classList.add('hidden');
+            }
+        }
+
+        function renderBikes(bikeList) {
+            const grid = document.getElementById('bike-grid');
+            const noResults = document.getElementById('no-results');
+
+            if (!bikeList || bikeList.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            grid.innerHTML = bikeList.map((bike, index) => {
+                const isFav = bike.isFavorite;
+                const inCompare = state.compareList.find(b => b.id === bike.id);
+                
+                return `
+                <div class="glass rounded-2xl overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,77,0,0.1)] transition-all duration-300 flex flex-col h-full animate-slide-up" style="animation-delay: ${index * 0.05}s">
+                    <div class="relative h-48 overflow-hidden cursor-pointer" onclick="openDetailsModal('${bike.id}')">
+                        <img src="${bike.image || 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800'}" alt="${bike.model}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-80"></div>
+                        <div class="absolute top-3 right-3 flex gap-2">
+                            <button onclick="toggleFavorite('${bike.id}', event)" class="w-8 h-8 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:text-accent-500 transition-colors z-10" title="Save Favorite">
+                                <i class="${isFav ? 'fa-solid text-accent-500' : 'fa-regular'} fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="absolute bottom-3 left-3 text-white">
+                            <span class="text-xs font-bold uppercase tracking-wider text-accent-500">${bike.brand}</span>
+                            <h3 class="text-xl font-heading font-bold leading-tight">${bike.model}</h3>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-accent-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            <i class="fa-solid fa-star text-[10px]"></i> ${bike.rating}
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white mb-4">${bike.priceDisplay || formatPrice(bike.price)} <span class="text-xs text-gray-500 font-normal">*Ex-showroom</span></div>
+                        
+                        <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-sm text-gray-600 dark:text-gray-300 mb-6 flex-1">
+                            <div class="flex items-center gap-2"><i class="fa-solid fa-gauge-high text-gray-400 w-4"></i> ${bike.engine} cc</div>
+                            <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-gray-400 w-4"></i> ${bike.power} bhp</div>
+                            <div class="flex items-center gap-2"><i class="fa-solid fa-gas-pump text-gray-400 w-4"></i> ${bike.mileage} kmpl</div>
+                            <div class="flex items-center gap-2"><i class="fa-solid fa-weight-hanging text-gray-400 w-4"></i> ${bike.weight} kg</div>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-auto pt-4 border-t border-gray-200 dark:border-dark-700">
+                            <button onclick="openDetailsModal('${bike.id}')" class="flex-1 py-2 rounded-lg border border-gray-300 dark:border-dark-600 hover:bg-gray-100 dark:hover:bg-dark-700 transition-colors text-sm font-semibold">
+                                Details
+                            </button>
+                            <button onclick="toggleCompare('${bike.id}')" class="flex-1 py-2 rounded-lg ${inCompare ? 'bg-green-600 hover:bg-green-700' : 'bg-dark-800 dark:bg-dark-600 hover:bg-accent-500'} text-white transition-colors text-sm font-semibold flex items-center justify-center gap-2">
+                                <i class="fa-solid ${inCompare ? 'fa-check' : 'fa-code-compare'}"></i> ${inCompare ? 'Added' : 'Compare'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function toggleFavorite(id, event) {
+            if (event) event.stopPropagation();
+            const bike = state.bikes.find(b => b.id === id);
+            const isCurrentlyFav = bike ? bike.isFavorite : false;
+
+            try {
+                if (isCurrentlyFav) {
+                    await fetch(`${API_BASE}/api/favorites/${id}`, { method: 'DELETE' });
+                    showToast('Removed from favorites');
+                    if (bike) bike.isFavorite = false;
+                } else {
+                    await fetch(`${API_BASE}/api/favorites/${id}`, { method: 'POST' });
+                    showToast('Saved to database favorites');
+                    if (bike) bike.isFavorite = true;
+                }
+                renderBikes(state.bikes);
+            } catch (err) {
+                showToast('Failed to update favorite', 'error');
+            }
+        }
+
+        async function openDetailsModal(id) {
+            try {
+                const res = await fetch(`${API_BASE}/api/bikes/${id}`);
+                if (!res.ok) throw new Error('Failed to load bike details');
+                const bike = await res.json();
+
+                const modal = document.getElementById('details-modal');
+                const content = document.getElementById('details-modal-content');
+                const body = document.getElementById('details-modal-body');
+                const inCompare = state.compareList.find(b => b.id === bike.id);
+
+                body.innerHTML = `
+                    <div class="flex flex-col md:flex-row h-full max-h-[85vh]">
+                        <!-- Image Half -->
+                        <div class="w-full md:w-1/2 relative bg-dark-900 min-h-[300px]">
+                            <img src="${bike.image || 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800'}" alt="${bike.model}" class="w-full h-full object-cover absolute inset-0">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 right-6 text-white">
+                                <div class="inline-block px-3 py-1 bg-accent-500 rounded-full text-xs font-bold mb-2 uppercase tracking-wider">${bike.type}</div>
+                                <h2 class="text-4xl font-heading font-bold leading-none mb-1">${bike.model}</h2>
+                                <p class="text-gray-300 text-lg">by ${bike.brand}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Details Half -->
+                        <div class="w-full md:w-1/2 p-6 md:p-8 overflow-y-auto bg-white dark:bg-dark-800">
+                            <div class="flex justify-between items-end mb-6">
+                                <div>
+                                    <div class="text-sm text-gray-500">Estimated Price</div>
+                                    <div class="text-3xl font-bold text-gray-900 dark:text-white">${bike.priceDisplay || formatPrice(bike.price)}</div>
+                                </div>
+                                <div class="bg-dark-900 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                                    <i class="fa-solid fa-star text-accent-500 text-sm"></i> <span class="font-bold">${bike.rating}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-8">
+                                <div class="bg-gray-50 dark:bg-dark-900 p-3 rounded-xl border border-gray-100 dark:border-dark-700">
+                                    <div class="text-xs text-gray-500 mb-1">Engine</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">${bike.engine} cc</div>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-dark-900 p-3 rounded-xl border border-gray-100 dark:border-dark-700">
+                                    <div class="text-xs text-gray-500 mb-1">Max Power</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">${bike.power} bhp</div>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-dark-900 p-3 rounded-xl border border-gray-100 dark:border-dark-700">
+                                    <div class="text-xs text-gray-500 mb-1">Mileage</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">${bike.mileage} kmpl</div>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-dark-900 p-3 rounded-xl border border-gray-100 dark:border-dark-700">
+                                    <div class="text-xs text-gray-500 mb-1">Top Speed</div>
+                                    <div class="font-semibold text-gray-900 dark:text-white">${bike.topSpeed} kmph</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-lg font-bold mb-3 border-b border-gray-200 dark:border-dark-700 pb-2">Key Specifications</h3>
+                                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                                    <li class="flex"><span class="w-1/3 text-gray-500">Torque:</span> <span class="w-2/3 font-medium text-gray-900 dark:text-white">${bike.torque} Nm</span></li>
+                                    <li class="flex"><span class="w-1/3 text-gray-500">Weight:</span> <span class="w-2/3 font-medium text-gray-900 dark:text-white">${bike.weight} kg</span></li>
+                                    <li class="flex"><span class="w-1/3 text-gray-500">Fuel Tank:</span> <span class="w-2/3 font-medium text-gray-900 dark:text-white">${bike.fuelCapacity} L</span></li>
+                                    <li class="flex"><span class="w-1/3 text-gray-500">Brakes:</span> <span class="w-2/3 font-medium text-gray-900 dark:text-white">${bike.brakes || 'Disc Brakes'}</span></li>
+                                    <li class="flex"><span class="w-1/3 text-gray-500">Suspension:</span> <span class="w-2/3 font-medium text-gray-900 dark:text-white">${bike.suspension || 'USD Fork / Monoshock'}</span></li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-8">
+                                <h3 class="text-lg font-bold mb-3 border-b border-gray-200 dark:border-dark-700 pb-2">Features</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    ${(bike.features || []).map(f => `<span class="bg-accent-500/10 text-accent-600 dark:text-accent-500 text-xs px-2.5 py-1 rounded-md border border-accent-500/20">${f}</span>`).join('')}
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                <div class="bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
+                                    <h4 class="text-green-600 dark:text-green-400 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-thumbs-up"></i> Pros</h4>
+                                    <ul class="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                        ${(bike.pros || []).map(p => `<li>${p}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="bg-red-500/5 border border-red-500/20 p-4 rounded-xl">
+                                    <h4 class="text-red-600 dark:text-red-400 font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-thumbs-down"></i> Cons</h4>
+                                    <ul class="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                        ${(bike.cons || []).map(c => `<li>${c}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button onclick="toggleCompare('${bike.id}'); closeDetailsModal();" class="flex-1 py-4 rounded-xl ${inCompare ? 'bg-red-600 hover:bg-red-700' : 'bg-accent-500 hover:bg-accent-600'} text-white font-bold text-lg transition-colors shadow-lg flex items-center justify-center gap-2">
+                                    <i class="fa-solid ${inCompare ? 'fa-minus' : 'fa-plus'}"></i> ${inCompare ? 'Remove from Compare' : 'Add to Compare'}
+                                </button>
+                                <button onclick="deleteBike('${bike.id}')" class="px-4 py-4 rounded-xl bg-dark-700 hover:bg-red-600 text-gray-300 hover:text-white transition-colors" title="Delete motorcycle from database">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                modal.classList.remove('hidden');
+                void modal.offsetWidth;
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                document.body.style.overflow = 'hidden';
+            } catch (err) {
+                showToast('Failed to open bike details', 'error');
+            }
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        async function deleteBike(id) {
+            if (!confirm(`Are you sure you want to delete this bike from SQLite database?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/bikes/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Delete failed');
+                showToast('Motorcycle deleted successfully');
+                closeDetailsModal();
+                state.compareList = state.compareList.filter(b => b.id !== id);
+                updateCompareUI();
+                fetchBikes();
+            } catch (err) {
+                showToast('Failed to delete bike', 'error');
+            }
+        }
+
+        function toggleCompare(id) {
+            const bike = state.bikes.find(b => b.id === id);
+            if (!bike) return;
+            const index = state.compareList.findIndex(b => b.id === id);
+
+            if (index > -1) {
+                state.compareList.splice(index, 1);
+                showToast(`Removed ${bike.model} from compare`, 'error');
+            } else {
+                if (state.compareList.length >= 2) {
+                    showToast('You can only compare 2 bikes at a time. Remove one first.', 'error');
+                    return;
+                }
+                state.compareList.push(bike);
+                showToast(`Added ${bike.model} to compare`);
+            }
+            updateCompareUI();
+            renderBikes(state.bikes);
+        }
+
+        function clearCompare() {
+            state.compareList = [];
+            updateCompareUI();
+            renderBikes(state.bikes);
+            showToast('Comparison list cleared');
+        }
+
+        function updateCompareUI() {
+            const bar = document.getElementById('floating-compare');
+            const slots = document.getElementById('compare-slots');
+            const btnCompare = document.getElementById('btn-compare-now');
+            const navBadge = document.getElementById('nav-compare-badge');
+
+            if (state.compareList.length > 0) {
+                navBadge.textContent = state.compareList.length;
+                navBadge.classList.remove('hidden');
+            } else {
+                navBadge.classList.add('hidden');
+            }
+
+            if (state.compareList.length === 0) {
+                bar.classList.add('translate-y-full');
+                return;
+            }
+
+            bar.classList.remove('translate-y-full');
+            btnCompare.disabled = state.compareList.length < 2;
+
+            slots.innerHTML = '';
+            if (state.compareList[0]) slots.innerHTML += createCompareSlotHTML(state.compareList[0]);
+            if (state.compareList.length > 0) slots.innerHTML += `<div class="hidden sm:flex text-gray-500 font-bold px-2 text-xl">VS</div>`;
+            if (state.compareList[1]) {
+                slots.innerHTML += createCompareSlotHTML(state.compareList[1]);
+            } else {
+                slots.innerHTML += `
+                    <div class="flex items-center gap-3 bg-dark-800 border border-dashed border-dark-600 p-2 rounded-lg min-w-[200px] opacity-50">
+                        <div class="w-10 h-10 bg-dark-700 rounded flex items-center justify-center text-gray-500"><i class="fa-solid fa-plus"></i></div>
+                        <div class="text-sm text-gray-400">Add 2nd bike</div>
+                    </div>
+                `;
+            }
+        }
+
+        function createCompareSlotHTML(bike) {
+            return `
+                <div class="flex items-center gap-3 bg-dark-800 border border-dark-600 p-2 rounded-lg min-w-[200px] shrink-0 group relative">
+                    <img src="${bike.image}" class="w-12 h-10 object-cover rounded">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs text-accent-500 uppercase truncate">${bike.brand}</div>
+                        <div class="text-sm text-white font-bold truncate">${bike.model}</div>
+                    </div>
+                    <button onclick="toggleCompare('${bike.id}')" class="text-gray-400 hover:text-red-500 p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function openComparisonModalFromNav() {
+            if (state.compareList.length === 2) {
+                openComparisonModal();
+            } else if (state.compareList.length === 1) {
+                showToast('Please add one more bike to compare.', 'error');
+                scrollToSection('explore');
+            } else {
+                showToast('Select 2 bikes to compare.', 'error');
+                scrollToSection('explore');
+            }
+        }
+
+        // Server-Side Powered Comparison Modal
+        async function openComparisonModal() {
+            if (state.compareList.length !== 2) return;
+
+            const modal = document.getElementById('compare-modal');
+            const container = document.getElementById('compare-table-container');
+            const [b1, b2] = state.compareList;
+
+            container.innerHTML = `
+                <div class="py-20 text-center">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-accent-500 mb-3"></i>
+                    <p class="text-gray-400 text-sm">Computing head-to-head comparison via FastAPI /api/compare...</p>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/compare?id1=${b1.id}&id2=${b2.id}`);
+                if (!res.ok) throw new Error('Comparison API error');
+                const data = await res.json();
+
+                const rowClass = "border-b border-gray-200 dark:border-dark-700 hover:bg-gray-50 dark:hover:bg-dark-800 transition-colors";
+                const cellClass = "py-4 px-4 text-center w-2/5";
+                const labelClass = "py-4 px-4 font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-dark-800/50 w-1/5 shrink-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] z-10 sticky left-0";
+
+                const winnerBadge = data.summary.overallWinner !== "Tie" 
+                    ? `<div class="mb-4 p-3 rounded-xl bg-accent-500/10 border border-accent-500/30 text-accent-500 text-sm font-semibold flex items-center justify-center gap-2">
+                         <i class="fa-solid fa-trophy"></i> Spec Advantage Winner: <strong>${data.summary.overallWinner}</strong> (${data.summary.b1Wins > data.summary.b2Wins ? data.summary.b1Wins : data.summary.b2Wins} categories won)
+                       </div>`
+                    : '';
+
+                container.innerHTML = `
+                    ${winnerBadge}
+                    <div class="bg-white dark:bg-dark-900 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-dark-700">
+                        <!-- Headers -->
+                        <div class="flex border-b border-gray-200 dark:border-dark-700 bg-gray-50 dark:bg-dark-800/50 p-4">
+                            <div class="${labelClass.replace('bg-gray-50 dark:bg-dark-800/50', '')} border-none shadow-none"></div>
+                            <div class="w-2/5 px-2 text-center relative group">
+                                <div class="h-40 rounded-xl overflow-hidden mb-3">
+                                    <img src="${data.bike1.image}" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-xl font-heading font-bold">${data.bike1.model}</h3>
+                                <p class="text-sm text-gray-500">${data.bike1.brand}</p>
+                                <button onclick="toggleCompare('${data.bike1.id}'); closeCompareModal();" class="absolute top-2 right-4 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                            </div>
+                            <div class="w-2/5 px-2 text-center relative group">
+                                <div class="h-40 rounded-xl overflow-hidden mb-3">
+                                    <img src="${data.bike2.image}" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-xl font-heading font-bold">${data.bike2.model}</h3>
+                                <p class="text-sm text-gray-500">${data.bike2.brand}</p>
+                                <button onclick="toggleCompare('${data.bike2.id}'); closeCompareModal();" class="absolute top-2 right-4 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Rows from Server API -->
+                        ${data.specs.map(spec => `
+                            <div class="flex ${rowClass}">
+                                <div class="${labelClass}">${spec.label}</div>
+                                <div class="${cellClass} ${spec.b1Class}">
+                                    ${spec.key === 'price' ? formatPrice(spec.val1) : `${spec.val1} ${spec.unit}`}
+                                </div>
+                                <div class="${cellClass} ${spec.b2Class}">
+                                    ${spec.key === 'price' ? formatPrice(spec.val2) : `${spec.val2} ${spec.unit}`}
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <div class="bg-gray-100 dark:bg-dark-800 py-2 px-4 font-bold text-accent-500 uppercase tracking-wider text-xs">Features Comparison</div>
+                        <div class="flex ${rowClass}">
+                            <div class="${labelClass}">Key Features</div>
+                            <div class="${cellClass}">
+                                <ul class="text-sm text-left list-disc list-inside space-y-1 inline-block">
+                                    ${(data.bike1.features || []).map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div class="${cellClass}">
+                                 <ul class="text-sm text-left list-disc list-inside space-y-1 inline-block">
+                                    ${(data.bike2.features || []).map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                container.innerHTML = `<div class="text-center py-12 text-red-500">Failed to calculate comparison from server.</div>`;
+            }
+        }
+
+        function closeCompareModal() {
+            const modal = document.getElementById('compare-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // Add Bike Modal handlers
+        function openAddBikeModal() {
+            const modal = document.getElementById('add-bike-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }
+
+        function closeAddBikeModal() {
+            const modal = document.getElementById('add-bike-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function handleCreateBike(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-bike');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const payload = {
+                id: document.getElementById('new-id').value.trim().toLowerCase().replace(/\s+/g, '-'),
+                brand: document.getElementById('new-brand').value.trim(),
+                model: document.getElementById('new-model').value.trim(),
+                price: parseFloat(document.getElementById('new-price').value),
+                priceDisplay: formatPrice(parseFloat(document.getElementById('new-price').value)),
+                engine: parseFloat(document.getElementById('new-engine').value),
+                power: parseFloat(document.getElementById('new-power').value),
+                torque: parseFloat(document.getElementById('new-torque').value),
+                topSpeed: parseFloat(document.getElementById('new-topspeed').value),
+                mileage: parseFloat(document.getElementById('new-mileage').value),
+                weight: parseFloat(document.getElementById('new-weight').value),
+                fuelCapacity: 13.5,
+                brakes: "Dual Channel ABS",
+                suspension: "Inverted USD / Monoshock",
+                type: document.getElementById('new-type').value,
+                rating: 4.6,
+                image: document.getElementById('new-image').value.trim() || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800",
+                pros: ["Punchy performance", "Great design"],
+                cons: ["Limited top-end reach"],
+                features: ["LED Headlamp", "Digital Display"]
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/bikes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Could not save bike');
+                }
+                showToast(`${payload.model} added to database!`);
+                closeAddBikeModal();
+                document.getElementById('add-bike-form').reset();
+                loadFilterOptions();
+                fetchBikes();
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save to Database';
+            }
+        }
+
+        function resetFilters() {
+            state.filters = { brands: [], types: [], maxPrice: 600000, minEngine: 0 };
+            state.searchQuery = '';
+            document.getElementById('hero-search').value = '';
+            document.querySelectorAll('.brand-filter, .type-filter').forEach(cb => cb.checked = false);
+            const pr = document.getElementById('price-range');
+            pr.value = 600000;
+            document.getElementById('price-value').textContent = formatPrice(600000);
+            document.getElementById('engine-filter').value = "0";
+            fetchBikes();
+        }
+
+        function attachEventListeners() {
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('mobile-theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+            const searchInput = document.getElementById('hero-search');
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(state.debounceTimer);
+                state.debounceTimer = setTimeout(() => {
+                    state.searchQuery = e.target.value.toLowerCase().trim();
+                    fetchBikes();
+                }, 250);
+            });
+
+            const priceRange = document.getElementById('price-range');
+            const priceValue = document.getElementById('price-value');
+            priceRange.addEventListener('input', (e) => {
+                state.filters.maxPrice = parseInt(e.target.value);
+                priceValue.textContent = formatPrice(state.filters.maxPrice);
+                clearTimeout(state.debounceTimer);
+                state.debounceTimer = setTimeout(fetchBikes, 200);
+            });
+
+            document.getElementById('engine-filter').addEventListener('change', (e) => {
+                state.filters.minEngine = parseInt(e.target.value);
+                fetchBikes();
+            });
+
+            document.getElementById('sort-select').addEventListener('change', (e) => {
+                state.sortBy = e.target.value;
+                fetchBikes();
+            });
+
+            document.getElementById('mobile-filter-btn')?.addEventListener('click', toggleMobileFilter);
+
+            document.getElementById('details-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeDetailsModal();
+            });
+            document.getElementById('compare-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeCompareModal();
+            });
+            document.getElementById('add-bike-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeAddBikeModal();
+            });
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+        function toggleMobileFilter() {
+            const sidebar = document.getElementById('filter-sidebar');
+            sidebar.classList.toggle('hidden');
+            if (!sidebar.classList.contains('hidden')) {
+                sidebar.classList.add('fixed', 'inset-0', 'z-50', 'bg-white', 'dark:bg-dark-900', 'overflow-y-auto');
+                sidebar.querySelector('.glass').classList.remove('sticky', 'top-24');
+            } else {
+                sidebar.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white', 'dark:bg-dark-900', 'overflow-y-auto');
+                sidebar.querySelector('.glass').classList.add('sticky', 'top-24');
+            }
+        }
+    </script>
+</body>
+</html>
